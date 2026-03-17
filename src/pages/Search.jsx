@@ -21,7 +21,7 @@ export default function Search() {
     try {
       const data = await fetchJobs(keyword, location);
       setJobs(data.results);
-      if (data.results.length > 0) {
+      if (data.results.length > 0 && window.innerWidth > 900) {
         setSelectedJob(data.results[0]);
       }
     } catch (error) {
@@ -91,6 +91,7 @@ export default function Search() {
           {/* Job Details Panel */}
           {selectedJob && (
             <section className="glass-card details-panel">
+              <button className="mobile-detail-close" onClick={() => setSelectedJob(null)}>Back to List</button>
               <div className="details-header">
                 <h2>{selectedJob.title}</h2>
                 <p className="details-company">{selectedJob.company?.display_name}</p>

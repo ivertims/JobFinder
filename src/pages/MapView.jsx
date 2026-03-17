@@ -1,61 +1,111 @@
 import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import { fetchJobs } from '../services/adzuna';
-import { MapPin, Search } from 'lucide-react';
+import { MapPin } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import '../styles/MapView.css';
+
+// Fix Marker icons issue for Leaflet in React
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: markerIcon2x,
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow,
+});
+
+function ChangeView({ center }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, 13);
+  }, [center, map]);
+  return null;
+}
 
 export default function MapView() {
   const [jobs, setJobs] = useState([]);
-  const [center, setCenter] = useState({ lat: 51.5074, lng: -0.1278 }); // Default London
+  const [center, setCenter] = useState([51.5074, -0.1278]); // Default London
   const [selectedJob, setSelectedJob] = useState(null);
+
+    const [userLocation, setUserLocation] = useState(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setCenter([latitude, longitude]);
+          setUserLocation([latitude, longitude]);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+        }
+      );
+    }
+  }, []);
 
   useEffect(() => {
     const loadJobs = async () => {
       const data = await fetchJobs('', '');
-      setJobs(data.results);
-      if (data.results.length > 0) {
-        setSelectedJob(data.results[0]);
-        setCenter({ lat: data.results[0].latitude || 51.5074, lng: data.results[0].longitude || -0.1278 });
+      // Filter items that have latitude/longitude
+      const withGeo = data.results.filter(job => job.latitude && job.longitude);
+      setJobs(withGeo);
+      if (withGeo.length > 0) {
+        setSelectedJob(withGeo[0]);
+        setCenter([withGeo[0].latitude, withGeo[0].longitude]);
       }
     };
     loadJobs();
   }, []);
 
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-  const isMockMap = !apiKey || apiKey === 'your-google-maps-api-key';
-
   return (
     <div className="dashboard-container">
       <Sidebar />
       <main className="map-main">
-        <div className="map-view-container">
-          {isMockMap ? (
-            <div className="mock-map glass-card">
-              <div className="mock-map-overlay">
-                <MapPin size={48} className="map-pin-icon" style={{ color: 'var(--accent-secondary)' }} />
-                <h3>Google Maps View</h3>
-                <p>Add <code>VITE_GOOGLE_MAPS_API_KEY</code> to `.env` to load live map.</p>
-                {selectedJob && (
-                  <div className="mock-marker" style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-                    <div className="marker-pin"></div>
-                    <div className="marker-label">{selectedJob.title}</div>
+        {/* Leaflet CSS Injection */}
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        
+        <div className="map-view-container" style={{ height: '100%', width: '100%' }}>
+          <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%', borderRadius: '16px' }}>
+            <ChangeView center={center} />
+            {userLocation && (
+              <Marker position={userLocation} icon={L.divIcon({ 
+                className: 'user-location-marker',
+                html: '<div style="background-color: #4361ee; width: 14px; height: 14px; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(67, 97, 238, 0.5); animation: pulse 1.5s infinite;"></div>',
+                iconSize: [14, 14]
+              })}>
+                <Popup>You are here</Popup>
+              </Marker>
+            )}
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            {jobs.map(job => (
+              <Marker 
+                key={job.id} 
+                position={[job.latitude, job.longitude]}
+                eventHandlers={{
+                  click: () => setSelectedJob(job),
+                }}
+              >
+                <Popup>
+                  <div style={{ fontSize: '13px', color: '#000' }}>
+                    <strong>{job.title}</strong>
+                    <p style={{ margin: '2px 0', color: 'var(--accent-secondary)' }}>{job.company?.display_name}</p>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#666' }}>{job.location?.display_name}</p>
                   </div>
-                )}
-              </div>
-            </div>
-          ) : (
-            <iframe
-              width="100%"
-              height="100%"
-              style={{ border: 0, borderRadius: '16px' }}
-              loading="lazy"
-              allowFullScreen
-              src={`https://www.google.com/maps/embed/v1/search?key=${apiKey}&q=jobs+in+london`}
-            ></iframe>
-          )}
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
         </div>
 
-        {/* Floating details section for selected side-by-side job listing */}
+        {/* Floating details section */}
         {selectedJob && (
           <div className="glass-card map-floating-details">
             <h4 style={{ fontSize: '15px' }}>{selectedJob.title}</h4>

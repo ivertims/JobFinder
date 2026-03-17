@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Dashboard from './pages/Dashboard';
 import Search from './pages/Search';
 import Applications from './pages/Applications';
@@ -11,7 +12,7 @@ import './index.css';
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   
-  if (loading) return <div style={{ color: 'white', padding: '20px' }}>Loading application...</div>;
+  if (loading) return <div style={{ color: 'var(--text-active)', padding: '20px' }}>Loading application...</div>;
   if (!user) return <Navigate to="/login" replace />;
   
   return children;
@@ -20,7 +21,8 @@ function ProtectedRoute({ children }) {
 function App() {
   return (
     <Router>
-      <AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<Login />} />
@@ -56,7 +58,8 @@ function App() {
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </AuthProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </Router>
   );
 }

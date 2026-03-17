@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const ADZUNA_APP_ID = import.meta.env.VITE_ADZUNA_APP_ID;
 const ADZUNA_APP_KEY = import.meta.env.VITE_ADZUNA_APP_KEY;
-const BASE_URL = 'https://api.adzuna.com/v1/api/jobs/gb/search'; // Defaulting to UK ('gb') for Adzuna
+const BASE_URL = '/api-adzuna/v1/api/jobs/gb/search';
 
 export const fetchJobs = async (keyword = '', location = '', page = 1) => {
   // Use MOCK DATA if API keys are missing or contain placeholder values
@@ -31,8 +31,7 @@ export const fetchJobs = async (keyword = '', location = '', page = 1) => {
         app_key: ADZUNA_APP_KEY,
         what: keyword,
         where: location,
-        results_per_page: 20,
-        content_type: 'application/json'
+        results_per_page: 20
       }
     });
     return response.data;
