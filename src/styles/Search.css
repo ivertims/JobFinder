@@ -1,0 +1,195 @@
+/* Search Main Layout */
+.search-main {
+  padding: 40px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Search Bar Styles */
+.search-bar {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  gap: 8px;
+  border-radius: 12px;
+}
+
+.search-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  padding: 10px 16px;
+}
+
+.input-icon {
+  color: var(--text-muted);
+}
+
+.search-input-group input {
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-active);
+  font-size: 15px;
+  width: 100%;
+  outline: none;
+}
+
+.search-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--glass-border);
+}
+
+/* Results Grid Structure */
+.search-results-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  height: calc(100vh - 160px);
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.job-card {
+  padding: 20px;
+  cursor: pointer;
+  border: 1px solid var(--glass-border);
+}
+
+.job-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.job-card.selected {
+  border-color: var(--accent-secondary);
+  background: rgba(0, 180, 216, 0.05);
+}
+
+.job-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.job-card-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.save-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.save-btn:hover {
+  color: var(--accent-secondary);
+}
+
+.job-company {
+  color: var(--accent-secondary);
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.job-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* Details Panel Styles */
+.details-panel {
+  padding: 32px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.details-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.details-company {
+  color: var(--accent-secondary);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.details-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.details-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.secondary-btn {
+  background: var(--glass-bg);
+  color: var(--text-active);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.secondary-btn:hover {
+  background: var(--glass-hover);
+}
+
+.details-content {
+  border-top: 1px solid var(--glass-border);
+  padding-top: 24px;
+}
+
+.description-text {
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-size: 15px;
+  margin-top: 12px;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 900px) {
+  .search-results-container {
+    grid-template-columns: 1fr;
+  }
+  .details-panel {
+    display: none; /* In mobile view, render full details page / modal */
+  }
+}
